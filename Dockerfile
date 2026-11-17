@@ -23,6 +23,10 @@ WORKDIR /app
 COPY --from=api /app ./
 # Some hosts (e.g. Hugging Face Spaces) run the container as an arbitrary user; let it save uploads.
 RUN mkdir -p /app/wwwroot/uploads && chmod -R 777 /app/wwwroot
-ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_ENVIRONMENT=Production \
+    SeedDemoData=true \
+    DOTNET_gcServer=0 \
+    DOTNET_GCConserveMemory=5
+EXPOSE 8080
 # Render (and most hosts) pass the port in $PORT; fall back to 8080.
 CMD ["sh", "-c", "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} exec dotnet MyProject.API.dll"]
