@@ -19,6 +19,16 @@ cd frontend && npm run dev                  # http://localhost:5173 (proxies /ap
 
 If the API runs on another port: `API_URL=http://localhost:5190 npm run dev`.
 
+## Publish (one app: site + API)
+
+```bash
+dotnet publish MyProject.API -c Release -o publish
+```
+
+This builds the React app and puts it in `publish/wwwroot`, so the .NET app serves the website, `/api` and `/hubs` from one port.
+Run it on the server with `dotnet MyProject.API.dll`; set `ConnectionStrings__Default` and `Jwt__Key` as environment variables.
+Uploaded images go to `wwwroot/uploads` inside the app folder, so keep that folder when you deploy a new version.
+
 ## Demo accounts (dev seed)
 
 Log in with a phone number. In Development the OTP is shown in the login dialog.

@@ -18,3 +18,6 @@ MyProject.API/wwwroot/uploads/
 .idea/
 .DS_Store
 *.log
+
+# dotnet publish output
+publish/

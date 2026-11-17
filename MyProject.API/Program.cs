@@ -56,6 +56,7 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.UseCors();
+app.UseDefaultFiles(); // serves wwwroot/index.html (the built frontend) at "/"
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -67,5 +68,12 @@ app.MapHost();
 app.MapProvider();
 app.MapAdmin();
 app.MapHub<NotificationHub>("/hubs/notifications");
+
+// The React app is published into wwwroot. Unknown /api, /hubs and /uploads paths stay 404s;
+// every other path returns index.html so client-side routes (/property/12, /admin, ...) work on refresh.
+app.Map("/api/{**rest}", () => Results.NotFound());
+app.Map("/hubs/{**rest}", () => Results.NotFound());
+app.Map("/uploads/{**rest}", () => Results.NotFound());
+app.MapFallbackToFile("index.html");
 
 app.Run();
