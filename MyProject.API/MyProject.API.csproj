@@ -13,9 +13,10 @@
   </ItemGroup>
 
   <!-- `dotnet publish` builds the React app and puts it in wwwroot, so one app serves the site and the API. -->
+  <!-- Pass -p:SkipSpaBuild=true when frontend/dist was already built (the Dockerfile builds it in a Node stage). -->
   <Target Name="PublishFrontend" AfterTargets="ComputeFilesToPublish">
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm ci" Condition="!Exists('$(SpaRoot)node_modules')" />
-    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm ci" Condition="'$(SkipSpaBuild)' != 'true' And !Exists('$(SpaRoot)node_modules')" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" Condition="'$(SkipSpaBuild)' != 'true'" />
     <ItemGroup>
       <SpaDist Include="$(SpaRoot)dist\**" />
       <ResolvedFileToPublish Include="@(SpaDist->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">

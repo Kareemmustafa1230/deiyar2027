@@ -1,0 +1,10 @@
+**/bin
+**/obj
+**/node_modules
+frontend/dist
+publish
+MyProject.API/wwwroot/uploads
+.git
+.claude
+*.dump
+*.sql
