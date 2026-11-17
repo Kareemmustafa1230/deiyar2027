@@ -10,8 +10,18 @@ using MyProject.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Hosts like Render hand the database over as separate DB_HOST / DB_NAME / DB_USER / DB_PASSWORD values.
-if (Environment.GetEnvironmentVariable("DB_HOST") is { Length: > 0 } dbHost)
+// DATABASE_URL: a postgresql://user:pass@host/db link as Neon, Render, Railway and others give it.
+if (Environment.GetEnvironmentVariable("DATABASE_URL") is { Length: > 0 } dbUrl)
+{
+    var uri = new Uri(dbUrl);
+    var userInfo = uri.UserInfo.Split(':', 2);
+    builder.Configuration["ConnectionStrings:Default"] =
+        $"Host={uri.Host};Port={(uri.Port > 0 ? uri.Port : 5432)};Database={uri.AbsolutePath.TrimStart('/')};" +
+        $"Username={Uri.UnescapeDataString(userInfo[0])};Password={Uri.UnescapeDataString(userInfo.ElementAtOrDefault(1) ?? "")};" +
+        $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Require"}";
+}
+// Render Blueprints hand the database over as separate DB_HOST / DB_NAME / DB_USER / DB_PASSWORD values.
+else if (Environment.GetEnvironmentVariable("DB_HOST") is { Length: > 0 } dbHost)
 {
     builder.Configuration["ConnectionStrings:Default"] =
         $"Host={dbHost};Port={Environment.GetEnvironmentVariable("DB_PORT") ?? "5432"};" +
