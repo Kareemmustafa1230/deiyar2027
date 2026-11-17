@@ -35,6 +35,14 @@ builder.Services.AddDbContext<AppDb>(o => o.UseNpgsql(builder.Configuration.GetC
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddSignalR().AddJsonProtocol(o => o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+// appsettings.json holds a public dev key. On a server without its own Jwt__Key, use a random one instead
+// (people just sign in again after a restart) so nobody can forge tokens with the published key.
+if (!builder.Environment.IsDevelopment() && builder.Configuration["Jwt:Key"]?.StartsWith("dev-only-") != false)
+{
+    builder.Configuration["Jwt:Key"] = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(48));
+    Console.WriteLine("warn: Jwt__Key is not set; using a random signing key until the next restart.");
+}
+
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<Notifier>();
 builder.Services.AddScoped<PricingService>();
