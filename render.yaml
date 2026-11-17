@@ -1,0 +1,32 @@
+# Render Blueprint: creates the PostgreSQL database and the web app (site + API) and connects them.
+# Render dashboard → New → Blueprint → pick this repo → Apply.
+databases:
+  - name: deiyar-db
+    databaseName: deiyar
+    user: deiyar
+    plan: free
+    region: frankfurt
+
+services:
+  - type: web
+    name: deiyar
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/meta
+    envVars:
+      - key: DB_HOST
+        fromDatabase: { name: deiyar-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: deiyar-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: deiyar-db, property: database }
+      - key: DB_USER
+        fromDatabase: { name: deiyar-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: deiyar-db, property: password }
+      - key: Jwt__Key
+        generateValue: true
+      - key: SeedDemoData
+        value: "true"

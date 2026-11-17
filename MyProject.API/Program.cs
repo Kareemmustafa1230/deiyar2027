@@ -10,6 +10,15 @@ using MyProject.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Hosts like Render hand the database over as separate DB_HOST / DB_NAME / DB_USER / DB_PASSWORD values.
+if (Environment.GetEnvironmentVariable("DB_HOST") is { Length: > 0 } dbHost)
+{
+    builder.Configuration["ConnectionStrings:Default"] =
+        $"Host={dbHost};Port={Environment.GetEnvironmentVariable("DB_PORT") ?? "5432"};" +
+        $"Database={Environment.GetEnvironmentVariable("DB_NAME")};Username={Environment.GetEnvironmentVariable("DB_USER")};" +
+        $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")}";
+}
+
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDb>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("Default"), x => x.UseNetTopologySuite()));
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -50,7 +59,9 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDb>();
     // EnsureCreated keeps the dev loop simple; switch to EF migrations before the first production deploy.
     await db.Database.EnsureCreatedAsync();
-    if (app.Environment.IsDevelopment()) await Seed.Run(db);
+    // Demo data (listings + demo accounts incl. admin 0500000000) — always in Development, on a server only when SeedDemoData=true.
+    // It does nothing if the database already has data.
+    if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("SeedDemoData")) await Seed.Run(db);
 }
 
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
