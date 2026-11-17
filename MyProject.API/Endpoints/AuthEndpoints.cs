@@ -17,7 +17,7 @@ public static class AuthEndpoints
     {
         var g = app.MapGroup("/api/auth");
 
-        g.MapPost("/send-otp", async (SendOtpReq req, AppDb db, IWebHostEnvironment env, ILogger<Program> log) =>
+        g.MapPost("/send-otp", async (SendOtpReq req, AppDb db, IWebHostEnvironment env, IConfiguration config, ILogger<Program> log) =>
         {
             var phone = Normalize(req.Phone);
             if (phone.Length < 9) return Results.BadRequest(new { error = "invalid_phone" });
@@ -29,9 +29,11 @@ public static class AuthEndpoints
             db.OtpCodes.RemoveRange(db.OtpCodes.Where(o => o.Phone == phone));
             db.OtpCodes.Add(new OtpCode { Phone = phone, Code = code, ExpiresAt = DateTime.UtcNow.AddMinutes(5) });
             await db.SaveChangesAsync();
-            // TODO: plug an SMS gateway (Unifonic / Twilio). Until then the code is logged and returned in Development.
+            // TODO: plug an SMS gateway (Unifonic / Twilio). Until then the code is logged, and shown in the login
+            // dialog in Development or when ShowOtpOnScreen=true (demo servers only: anyone could sign in as anyone).
             log.LogInformation("OTP for {Phone}: {Code}", phone, code);
-            return Results.Ok(new { sent = true, devCode = env.IsDevelopment() ? code : null });
+            var showCode = env.IsDevelopment() || config.GetValue<bool>("ShowOtpOnScreen");
+            return Results.Ok(new { sent = true, devCode = showCode ? code : null });
         });
 
         g.MapPost("/verify", async (VerifyReq req, AppDb db, TokenService tokens) =>
