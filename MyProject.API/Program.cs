@@ -16,7 +16,8 @@ if (Environment.GetEnvironmentVariable("DB_HOST") is { Length: > 0 } dbHost)
     builder.Configuration["ConnectionStrings:Default"] =
         $"Host={dbHost};Port={Environment.GetEnvironmentVariable("DB_PORT") ?? "5432"};" +
         $"Database={Environment.GetEnvironmentVariable("DB_NAME")};Username={Environment.GetEnvironmentVariable("DB_USER")};" +
-        $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")}";
+        $"Password={Environment.GetEnvironmentVariable("DB_PASSWORD")};" +
+        $"SSL Mode={Environment.GetEnvironmentVariable("DB_SSL_MODE") ?? "Require"}";
 }
 
 builder.Services.AddOpenApi();

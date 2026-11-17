@@ -26,6 +26,8 @@ services:
         fromDatabase: { name: deiyar-db, property: user }
       - key: DB_PASSWORD
         fromDatabase: { name: deiyar-db, property: password }
+      - key: DB_SSL_MODE
+        value: Require
       - key: Jwt__Key
         generateValue: true
       - key: SeedDemoData
