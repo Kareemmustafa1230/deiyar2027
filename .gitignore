@@ -21,3 +21,5 @@ MyProject.API/wwwroot/uploads/
 
 # dotnet publish output
 publish/
+publish-win/
+*.zip
