@@ -48,3 +48,17 @@ Log in with a phone number. In Development the OTP is shown in the login dialog.
 - **Redis cache**: not added yet.
 - **Schema**: `EnsureCreated` is used; switch to EF migrations before the first deploy.
 - **Secrets**: `Jwt:Key` and the connection string in `appsettings.json` are dev values.
+
+## Deploy on Back4App Containers (free)
+
+Back4App has no PostgreSQL, so create a free database on [Neon](https://neon.tech) first (PostGIS works there) and copy its connection link.
+
+1. back4app.com → **Build new app** → **Containers as a Service** → connect GitHub and pick this repo (branch with the `Dockerfile`).
+2. Root directory `./`, it finds the `Dockerfile` and port `8080` on its own.
+3. **Environment variables**:
+   - `DATABASE_URL` = the Neon link (`postgresql://user:pass@host/db?sslmode=require`)
+   - `Jwt__Key` = any long random text (40+ characters)
+   - `SeedDemoData` = `true` (optional: demo listings and accounts)
+4. **Create App**. The first build takes a few minutes; the site and `/api` are on the `*.b4a.run` link it gives you.
+
+Uploaded images are kept inside the container, so they are lost when the app is redeployed.
