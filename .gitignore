@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+*.user
+
+# Node / Vite
+node_modules/
+dist/
+
+# Uploaded files and DB dumps
+MyProject.API/wwwroot/uploads/
+*.dump
+*.sql
+
+# Local tooling / OS
+.claude/
+.vscode/
+.idea/
+.DS_Store
+*.log
